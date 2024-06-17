@@ -9,7 +9,7 @@ def kirim_data():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     logging.warning("Open socket")
 
-    server_address = ('0.0.0.0', 45001)
+    server_address = ('0.0.0.0', 45000)
     logging.warning(f"opening socket {server_address}")
     sock.connect(server_address)
 
@@ -17,22 +17,26 @@ def kirim_data():
         # Send data
         while True:
             message = input('Input message here: ')
-            if message == 'QUIT':
-                break
             logging.warning(f"[CLIENT] sending {message}")
             sock.sendall(message.encode())
 
             # Look for the response
             amount_received = 0
             amount_expected = len(message)
+            response = ''
             while amount_received < amount_expected:
                 data = sock.recv(32)
+                data = data.decode('utf-8')
+                response = data
                 amount_received += len(data)
-                logging.warning(f"[SERVER] {data.decode('utf-8')}")
+
+                logging.warning(f"[SERVER] {data}")
+
+            if response == "QUIT":
+                break
     finally:
         logging.warning("closing")
         sock.close()
-    return
 
 if __name__ == '__main__':
     threads = []
